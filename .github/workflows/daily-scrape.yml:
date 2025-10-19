@@ -1,0 +1,33 @@
+name: Daily GitHub Dev Scraper
+
+on:
+  schedule:
+    - cron: '0 13 * * *' # Runs daily at 9AM ET
+  workflow_dispatch: # manual run
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run scraper
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx ts-node index.ts
+
+      - name: Upload CSV artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: developers-report
+          path: developers.csv
